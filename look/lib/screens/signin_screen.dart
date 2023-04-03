@@ -67,7 +67,8 @@ class _SignInScreenState extends State<SignInScreen> {
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMessage),),);
                   }
                 }),
-                signUpOption()
+                signUpOption(),
+                SizedBox(height: MediaQuery.of(context).size.height * 0.3)
               ],
             ),
           ),

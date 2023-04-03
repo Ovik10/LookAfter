@@ -21,6 +21,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
   TextEditingController _userNameTextController = TextEditingController();
   TextEditingController _emailTextController = TextEditingController();
 
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+   bool _isEmailValid(String email) {
+    return RegExp(
+            r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$")
+        .hasMatch(email);
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,30 +68,48 @@ class _SignUpScreenState extends State<SignUpScreen> {
             child: Column(
               children: <Widget>[
                 reusableTextField(
-                    "Enter UserName", Icons.person_2_outlined, false, _userNameTextController),
+                  "Enter UserName",
+                  Icons.person_2_outlined,
+                  false,
+                  _userNameTextController,
+                ),
                 SizedBox(
                   height: 20,
                 ),
                 reusableTextField(
-                    "Enter Email", Icons.email, false, _emailTextController),
+                  "Enter Email",
+                  Icons.email,
+                  false,
+                  _emailTextController,
+                ),
                 SizedBox(height: 20),
                 reusableTextField(
-                    "Enter Password", Icons.lock_outline, true, _passwordTextController),
+                  "Enter Password",
+                  Icons.lock_outline,
+                  true,
+                  _passwordTextController,
+                ),
                 SizedBox(height: 20),
                 signInSignUpButton(context, false, () {
-                  FirebaseAuth.instance
-                      .createUserWithEmailAndPassword(
-                          email: _emailTextController.text,
-                          password: _passwordTextController.text)
-                      .then((value) {
-                    _logger.info("Account created");
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => HomeScreen()));
-                  }).onError((error, stackTrace) {
-                    _logger.severe("Error ${error.toString()}", error, stackTrace);
-                  });
+                  final userName = _userNameTextController.text.trim();
+                  final email = _emailTextController.text.trim();
+                  final password = _passwordTextController.text.trim();
+
+                  if (userName.isEmpty || email.isEmpty || password.isEmpty) {
+                    _showSnackBar('Please fill all the fields.');
+                     } else if (!_isEmailValid(email)) {
+                    _showSnackBar('Please enter a valid email address.');
+                  } else {
+                    FirebaseAuth.instance
+                        .createUserWithEmailAndPassword(email: email, password: password)
+                        .then((value) {
+                      _logger.info("Account created");
+                      Navigator.push(
+                          context, MaterialPageRoute(builder: (context) => HomeScreen()));
+                    }).onError((error, stackTrace) {
+                      _logger.severe("Error ${error.toString()}", error, stackTrace);
+                    });
+                  }
                 }),
               ],
             ),
