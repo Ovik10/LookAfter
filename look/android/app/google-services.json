@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "569161177650",
+    "project_id": "lookafter-dae81",
+    "storage_bucket": "lookafter-dae81.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:569161177650:android:a7dcf44172e5af4e7d7a2b",
+        "android_client_info": {
+          "package_name": "com.example.look"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "569161177650-tvj55gefjbrf79sblk9103pue2q7b5a8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.look",
+            "certificate_hash": "b5fb7b6de08edf1c46842d761493665df4fe6670"
+          }
+        },
+        {
+          "client_id": "569161177650-blcuii67iu6cj7c0so1bn9tq8squkptl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyApJA5ylgzutGOWda4oyG-FK8O282Pa6LI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "569161177650-blcuii67iu6cj7c0so1bn9tq8squkptl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
