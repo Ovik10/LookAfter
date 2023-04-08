@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 
 class MyDrawer extends StatelessWidget {
   final VoidCallback? onHomeTap;
-  final VoidCallback? onSettingsTap;
+  final VoidCallback? onProfileTap;
   final VoidCallback? onLogoutTap;
 
   const MyDrawer({
     Key? key,
     this.onHomeTap,
-    this.onSettingsTap,
+    this.onProfileTap,
     this.onLogoutTap,
   }) : super(key: key);
 
@@ -36,9 +36,9 @@ class MyDrawer extends StatelessWidget {
             onTap: onHomeTap,
           ),
           ListTile(
-            leading: Icon(Icons.settings),
-            title: Text('Settings'),
-            onTap: onSettingsTap,
+            leading: Icon(Icons.man),
+            title: Text('Profile'),
+            onTap: onProfileTap,
           ),
           ListTile(
             leading: Icon(Icons.logout),

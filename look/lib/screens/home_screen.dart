@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:look/reusable_widgets/my_drawer.dart';
 import 'package:look/screens/map.dart';
+import 'package:look/screens/profile_change.dart';
+import 'package:look/screens/profile_detail.dart';
 import 'package:look/screens/signin_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -19,8 +21,11 @@ class _HomeScreenState extends State<HomeScreen> {
               );
   }
 
-  void navigateToSettings() {
-    // Navigate to settings page
+  void navigateToProfile() {
+    Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ProfileDetail()),
+              );
   }
 
   void logoutUser() {
@@ -44,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       drawer: MyDrawer(
         onHomeTap: navigateToHome,
-        onSettingsTap: navigateToSettings,
+        onProfileTap: navigateToProfile,
         onLogoutTap: logoutUser,
       ),
       body: Container(

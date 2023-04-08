@@ -39,6 +39,8 @@ dependencies:
   firebase_auth: ^4.3.0
   logging: ^1.1.1
   google_maps_flutter: ^2.2.5
+  location: ^4.4.0
+  geocoding: ^2.1.0
   
 
 dev_dependencies:
