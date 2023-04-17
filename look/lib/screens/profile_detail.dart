@@ -5,7 +5,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 
 
 class ProfileDetail extends StatefulWidget {
-  const ProfileDetail({Key? key}) : super(key: key);
+  final String? userID;
+  const ProfileDetail({Key? key, this.userID}) : super(key: key);
 
   @override
   State<ProfileDetail> createState() => _ProfileDetailState();
