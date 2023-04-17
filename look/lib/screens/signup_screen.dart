@@ -6,6 +6,8 @@ import 'package:look/reusable_widgets/reusable_widget.dart';
 import 'package:look/screens/home_screen.dart';
 import 'package:look/utils/color_utils.dart';
 import 'package:logging/logging.dart';
+import 'package:firebase_database/firebase_database.dart';
+
 
 final Logger _logger = Logger('SignUpScreen');
 
@@ -38,7 +40,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
 
   @override
+  
   Widget build(BuildContext context) {
+    final DatabaseReference databaseRef = FirebaseDatabase.instanceFor(
+  app: Firebase.app(),
+  databaseURL: 'https://lookafter-dae81-default-rtdb.europe-west1.firebasedatabase.app/',
+).ref();
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -101,14 +108,27 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     _showSnackBar('Please enter a valid email address.');
                   } else {
                     FirebaseAuth.instance
-                        .createUserWithEmailAndPassword(email: email, password: password)
-                        .then((value) {
-                      _logger.info("Account created");
-                      Navigator.push(
-                          context, MaterialPageRoute(builder: (context) => HomeScreen()));
-                    }).onError((error, stackTrace) {
-                      _logger.severe("Error ${error.toString()}", error, stackTrace);
-                    });
+  .createUserWithEmailAndPassword(email: email, password: password)
+  .then((value) {
+    // Create a reference to the user node in the database
+    DatabaseReference userRef = databaseRef.child('users').child(value.user!.uid);
+
+    // Create a map with the user data to be written to the database
+    Map<String, dynamic> userData = {
+      'username': userName,
+      'email': email,
+    };
+
+    // Write the user data to the database
+    userRef.set(userData).then((_) {
+      _logger.info("Account created");
+      Navigator.push(
+        context, MaterialPageRoute(builder: (context) => HomeScreen()));
+    });
+  })
+  .onError((error, stackTrace) {
+    _logger.severe("Error ${error.toString()}", error, stackTrace);
+  });
                   }
                 }),
               ],

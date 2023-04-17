@@ -9,6 +9,7 @@ import 'package:look/screens/profile_change.dart';
 import 'package:look/screens/profile_detail.dart';
 import 'package:look/screens/signin_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -32,9 +33,10 @@ void didChangeDependencies() {
 
 
   void navigateToProfile() {
+    String? userId = FirebaseAuth.instance.currentUser?.uid;
     Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => ProfileDetail()),
+                MaterialPageRoute(builder: (context) => ProfileDetail(userId: userId.toString())),
               );
   }
 
@@ -57,7 +59,6 @@ void didChangeDependencies() {
   Widget build(BuildContext context) {
 
     String? userId = FirebaseAuth.instance.currentUser?.uid;
-    print('User ID: $userId');
     return Scaffold(
       appBar: AppBar(
         title: Text('Look After'),
@@ -101,20 +102,29 @@ void didChangeDependencies() {
                   ListView(
   shrinkWrap: true,
   children: _contactList.map((contact) {
-    // Build a widget for each contact
     return ListTile(
-      title: Text(contact.toString()),
-      onTap: () {
-        // Navigate to the profile details of the selected contact
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ProfileDetail(),
-            //contactId: contact.id
-          ),
-        );
-      },
+  title: FutureBuilder<String>(
+    future: getUserName(contact.toString()),
+    builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+      if (snapshot.connectionState == ConnectionState.done) {
+        print(contact.toString());
+        return Text(snapshot.data ?? 'Unknown user');
+      } else {
+        
+        return CircularProgressIndicator();
+      }
+    },
+  ),
+  onTap: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ProfileDetail(userId: contact.toString()),
+        
+      ),
     );
+  },
+);
   }).toList(),
 )
                   ,
@@ -137,12 +147,30 @@ Future<void> getContactList() async {
   final userDocRef = FirebaseFirestore.instance.collection('users').doc(userId);
 final snapshot = await userDocRef.get();
 final contacts = List<String>.from(snapshot.get('contacts'));
-print(contacts);
- 
-  
+
     setState(() {
-      _contactList = List.from(contacts);
-      print(_contactList);
+      _contactList = contacts;
     });
 }
+Future<String> getUserName(String aUserId) async {
+final DatabaseReference databaseRef = FirebaseDatabase.instanceFor(
+  app: Firebase.app(),
+  databaseURL: 'https://lookafter-dae81-default-rtdb.europe-west1.firebasedatabase.app/',
+).ref();
+final auserId = aUserId;
+
+print("jindra");
+final userRef = databaseRef.child('users/$auserId');
+final dataSnapshot = await userRef.once().catchError((error) {
+  print("Error retrieving data from Firebase: $error");
+});
+final userData = dataSnapshot.snapshot.value as Map<dynamic, dynamic>;
+if (userData != null) {
+  final displayName = userData['username'];
+  return displayName;
+} else {
+  return "";
+}
+}
+
 }

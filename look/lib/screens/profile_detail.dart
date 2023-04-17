@@ -5,8 +5,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 
 
 class ProfileDetail extends StatefulWidget {
-  final String? userID;
-  const ProfileDetail({Key? key, this.userID}) : super(key: key);
+  final String userId;
+  const ProfileDetail({required this.userId, Key? key}) : super(key: key);
 
   @override
   State<ProfileDetail> createState() => _ProfileDetailState();
@@ -16,8 +16,8 @@ class _ProfileDetailState extends State<ProfileDetail> {
   String? _userEmail;
   String? _displayName;
 
-  Future<String?> _getProfilePictureUrl(String userId) async {
-    final ref = FirebaseStorage.instance.ref().child('profile_images/$userId.jpg');
+  Future<String?> _getProfilePictureUrl() async {
+    final ref = FirebaseStorage.instance.ref().child('profile_images/${widget.userId}.jpg');
     try {
       final url = await ref.getDownloadURL();
       return url;
@@ -44,7 +44,7 @@ class _ProfileDetailState extends State<ProfileDetail> {
 
   Future<void> _updateProfile() async {
      Navigator.push(
-                          context, MaterialPageRoute(builder: (context) => ProfileChange()));
+                context, MaterialPageRoute(builder: (context) => ProfileChange()));
   }
 
   @override
@@ -58,7 +58,7 @@ class _ProfileDetailState extends State<ProfileDetail> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             FutureBuilder<String?>(
-              future: _getProfilePictureUrl(FirebaseAuth.instance.currentUser!.uid),
+              future: _getProfilePictureUrl(),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   return CircleAvatar(

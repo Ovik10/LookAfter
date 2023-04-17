@@ -5,6 +5,7 @@ import 'package:look/reusable_widgets/reusable_widget.dart';
 import 'package:look/utils/color_utils.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'dart:io';
 
 class ProfileChange extends StatefulWidget {
@@ -69,12 +70,23 @@ duration: const Duration(seconds: 2),
     }
   }
   Future<void> _updateProfile() async {
+    final DatabaseReference databaseRef = FirebaseDatabase.instanceFor(
+  app: Firebase.app(),
+  databaseURL: 'https://lookafter-dae81-default-rtdb.europe-west1.firebasedatabase.app/',
+).ref();
     final FirebaseAuth auth = FirebaseAuth.instance;
     final User? user = auth.currentUser;
     if (user != null) {
       try {
         await user.updateDisplayName(_userNameTextController.text.trim());
         await user.updateEmail(_emailTextController.text.trim());
+
+        DatabaseReference userRef =
+          databaseRef.child('users').child(user.uid);
+      await userRef.update({
+        'username': _userNameTextController.text.trim(),
+        'email': _emailTextController.text.trim(),
+      });
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Profile has been updated!')),
