@@ -7,6 +7,7 @@ import 'package:look/screens/add_contact.dart';
 import 'package:look/screens/map.dart';
 import 'package:look/screens/profile_change.dart';
 import 'package:look/screens/profile_detail.dart';
+import 'package:look/screens/profile_detail_diff.dart';
 import 'package:look/screens/signin_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -36,7 +37,7 @@ void didChangeDependencies() {
     String? userId = FirebaseAuth.instance.currentUser?.uid;
     Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => ProfileDetail(userId: userId.toString())),
+                MaterialPageRoute(builder: (context) => ProfileDetail()),
               );
   }
 
@@ -119,7 +120,7 @@ void didChangeDependencies() {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ProfileDetail(userId: contact.toString()),
+        builder: (context) => ProfileDetailDiff(userId: contact.toString()),
         
       ),
     );
@@ -158,8 +159,6 @@ final DatabaseReference databaseRef = FirebaseDatabase.instanceFor(
   databaseURL: 'https://lookafter-dae81-default-rtdb.europe-west1.firebasedatabase.app/',
 ).ref();
 final auserId = aUserId;
-
-print("jindra");
 final userRef = databaseRef.child('users/$auserId');
 final dataSnapshot = await userRef.once().catchError((error) {
   print("Error retrieving data from Firebase: $error");
