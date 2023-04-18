@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:look/screens/map_diff.dart';
 import 'package:look/screens/profile_change.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -86,6 +87,17 @@ final userData = dataSnapshot.snapshot.value as Map<dynamic, dynamic>;
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             Text(_displayName ?? 'Loading...'),  
+            ElevatedButton(
+  onPressed: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MapDiff(userId: widget.userId),
+      ),
+    );
+  },
+  child: Text('Show Position'),
+),
           ],
         ),
       ),

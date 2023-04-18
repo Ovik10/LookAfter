@@ -1,7 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 class MapSample extends StatefulWidget {
   const MapSample({Key? key}) : super(key: key);
@@ -16,10 +19,10 @@ class MapSampleState extends State<MapSample> {
   final Set<Marker> _markers = {};
   late LocationData _currentLocation;
 
-  static const CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(37.42796133580664, -122.085749655962),
-    zoom: 14.4746,
-  );
+final DatabaseReference databaseRef = FirebaseDatabase.instanceFor(
+  app: Firebase.app(),
+  databaseURL: 'https://lookafter-dae81-default-rtdb.europe-west1.firebasedatabase.app/',
+).ref();
 
   @override
   void initState() {
@@ -39,17 +42,39 @@ class MapSampleState extends State<MapSample> {
           infoWindow: InfoWindow(title: 'You are here'),
         ),
       );
+      _updateDatabaseWithLocation(_currentLocation);
     });
+  }
+
+  void _updateDatabaseWithLocation(LocationData location) {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId != null) {
+    databaseRef.child('users').child(userId).update({
+      'latitude': location.latitude!,
+      'longitude': location.longitude!,
+    });
+  }
   }
 
   @override
   Widget build(BuildContext context) {
+     CameraPosition initialCameraPosition = CameraPosition(
+      target: LatLng(37.42796133580664, -122.085749655962),
+      zoom: 14.4746,
+    );
+
+    if (_currentLocation != null) {
+      initialCameraPosition = CameraPosition(
+        target: LatLng(_currentLocation.latitude!, _currentLocation.longitude!),
+        zoom: 18.0,
+      );
+    }
     return Scaffold(
       body: Stack(
         children: [
           GoogleMap(
             mapType: MapType.hybrid,
-            initialCameraPosition: _kGooglePlex,
+            initialCameraPosition: initialCameraPosition,
             onMapCreated: (GoogleMapController controller) {
               _controller.complete(controller);
             },
