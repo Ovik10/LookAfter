@@ -3,10 +3,16 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:look/screens/profile_change.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
-
 class ProfileDetail extends StatefulWidget {
-  final String? userID;
-  const ProfileDetail({Key? key, this.userID}) : super(key: key);
+  
+  final FirebaseAuth auth;
+  final FirebaseStorage storage;
+  
+  const ProfileDetail({
+    Key? key,
+    required this.auth,
+    required this.storage,
+  }) : super(key: key);
 
   @override
   State<ProfileDetail> createState() => _ProfileDetailState();
@@ -17,7 +23,7 @@ class _ProfileDetailState extends State<ProfileDetail> {
   String? _displayName;
 
   Future<String?> _getProfilePictureUrl(String userId) async {
-    final ref = FirebaseStorage.instance.ref().child('profile_images/$userId.jpg');
+    final ref = widget.storage.ref().child('profile_images/$userId.jpg');
     try {
       final url = await ref.getDownloadURL();
       return url;
@@ -33,7 +39,7 @@ class _ProfileDetailState extends State<ProfileDetail> {
   }
 
   Future<void> _getUserData() async {
-    final user = FirebaseAuth.instance.currentUser;
+    final user = widget.auth.currentUser;
     if (user != null) {
       setState(() {
         _userEmail = user.email;
@@ -43,8 +49,10 @@ class _ProfileDetailState extends State<ProfileDetail> {
   }
 
   Future<void> _updateProfile() async {
-     Navigator.push(
-                          context, MaterialPageRoute(builder: (context) => ProfileChange()));
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ProfileChange()),
+    );
   }
 
   @override
@@ -58,7 +66,7 @@ class _ProfileDetailState extends State<ProfileDetail> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             FutureBuilder<String?>(
-              future: _getProfilePictureUrl(FirebaseAuth.instance.currentUser!.uid),
+              future: _getProfilePictureUrl(widget.auth.currentUser!.uid),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   return CircleAvatar(

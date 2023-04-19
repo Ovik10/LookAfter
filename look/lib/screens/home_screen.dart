@@ -11,6 +11,7 @@ import 'package:look/screens/profile_detail_diff.dart';
 import 'package:look/screens/signin_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -37,7 +38,8 @@ void didChangeDependencies() {
     String? userId = FirebaseAuth.instance.currentUser?.uid;
     Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => ProfileDetail()),
+                MaterialPageRoute(builder: (context) => ProfileDetail(auth: FirebaseAuth.instance,
+  storage: FirebaseStorage.instance)),
               );
   }
 
