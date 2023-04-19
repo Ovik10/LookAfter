@@ -28,9 +28,8 @@ class _SignInScreenState extends State<SignInScreen> {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              hexStringToColor("CB2B93"),
-              hexStringToColor("9546C4"),
-              hexStringToColor("5E61F4")
+              hexStringToColor("05CDF9"),
+              hexStringToColor("1036BB"),
             ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -39,12 +38,21 @@ class _SignInScreenState extends State<SignInScreen> {
         child: SingleChildScrollView(
           child: Padding(
             padding:
-                EdgeInsets.fromLTRB(20, MediaQuery.of(context).size.height * 0.6, 20, 0),
+                EdgeInsets.fromLTRB(20, MediaQuery.of(context).size.height * 0.4, 20, 0),
             child: Column(
               children: <Widget>[
-                reusableTextField("Enter UserName", Icons.person_2_outlined, false, _emailTextController),
+                Text(
+      "Look After",
+      style: TextStyle(
+        color: Colors.white,
+        fontSize: 50,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+    SizedBox(height: 100,),
+                reusableTextField("UserName", Icons.person_2_outlined, false, _emailTextController),
                 SizedBox(height: 20,),
-                reusableTextField("Enter Password", Icons.lock_outline, true, _passwordTextController),
+                reusableTextField("Password", Icons.lock_outline, true, _passwordTextController),
                 SizedBox(height: 20),
                 signInSignUpButton(context, true, () async {
                   try {

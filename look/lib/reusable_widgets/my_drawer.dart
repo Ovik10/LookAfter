@@ -23,7 +23,7 @@ class MyDrawer extends StatelessWidget {
               color: Colors.blue,
             ),
             child: Text(
-              'My App',
+              'Look After',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 24,

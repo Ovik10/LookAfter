@@ -70,7 +70,7 @@ class _ProfileDetailState extends State<ProfileDetail> {
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   return CircleAvatar(
-                    radius: 50,
+                    radius: 100,
                     backgroundImage: NetworkImage(snapshot.data!),
                   );
                 } else if (snapshot.hasError) {
@@ -80,6 +80,7 @@ class _ProfileDetailState extends State<ProfileDetail> {
                 }
               },
             ),
+            SizedBox(height: 60),
             Text(
               'Email:',
               style: TextStyle(fontWeight: FontWeight.bold),
@@ -87,7 +88,7 @@ class _ProfileDetailState extends State<ProfileDetail> {
             Text(_userEmail ?? 'Loading...'),
             SizedBox(height: 20),
             Text(
-              'Display Name:',
+              'Username:',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             Text(_displayName ?? 'Loading...'),

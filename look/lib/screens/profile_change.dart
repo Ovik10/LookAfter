@@ -115,9 +115,8 @@ duration: const Duration(seconds: 2),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              hexStringToColor("CB2B93"),
-              hexStringToColor("9546C4"),
-              hexStringToColor("5E61F4")
+             hexStringToColor("05CDF9"),
+            hexStringToColor("1036BB"),
             ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -126,27 +125,30 @@ duration: const Duration(seconds: 2),
         child: SingleChildScrollView(
           child: Padding(
             padding:
-                EdgeInsets.fromLTRB(20, MediaQuery.of(context).size.height * 0.6, 20, 0),
+                EdgeInsets.fromLTRB(20, MediaQuery.of(context).size.height * 0.3, 20, 0),
             child: Column(
               children: <Widget>[
-                GestureDetector(
-          onTap: () {
-            _getImageFromGallery(FirebaseAuth.instance.currentUser!.uid);
-          },
-          child: CircleAvatar(
-            radius: 50,
-            backgroundImage: _uploadedImageUrl == null
-                ? null
-                : NetworkImage(_uploadedImageUrl!),
-            child: _uploadedImageUrl == null
-                ? const Icon(
-                    Icons.person,
-                    size: 50,
-                  )
-                : null,
-          ),
-        ),
-SizedBox(height: 20),
+  GestureDetector(
+    onTap: () {
+      _getImageFromGallery(FirebaseAuth.instance.currentUser!.uid);
+    },
+    child: CircleAvatar(
+      radius: 100,
+      backgroundColor: Colors.white,
+      backgroundImage: _uploadedImageUrl == null
+          ? null
+          : NetworkImage(_uploadedImageUrl!),
+      child: _uploadedImageUrl == null
+          ? Icon(
+              Icons.person,
+              size: 50,
+              color: Colors.blue,
+            )
+          : null,
+    ),
+  ),
+
+SizedBox(height: 60),
                 reusableTextField(
                   "Enter UserName",
                   Icons.person_2_outlined,
@@ -169,6 +171,7 @@ SizedBox(height: 20),
               onPressed: _updateProfile,
               child: Text('Update'),
             ),
+            SizedBox(height: 100),
           ],
         ),
       ),

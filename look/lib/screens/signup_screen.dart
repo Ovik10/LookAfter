@@ -60,9 +60,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              hexStringToColor("CB2B93"),
-              hexStringToColor("9546C4"),
-              hexStringToColor("5E61F4")
+              hexStringToColor("05CDF9"),
+              hexStringToColor("1036BB"),
             ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -71,11 +70,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
         child: SingleChildScrollView(
           child: Padding(
             padding:
-                EdgeInsets.fromLTRB(20, MediaQuery.of(context).size.height * 0.6, 20, 0),
+                EdgeInsets.fromLTRB(20, MediaQuery.of(context).size.height * 0.4, 20, 0),
             child: Column(
               children: <Widget>[
+                Text(
+      "Look After",
+      style: TextStyle(
+        color: Colors.white,
+        fontSize: 50,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+    SizedBox(height: 80,),
                 reusableTextField(
-                  "Enter UserName",
+                  "UserName",
                   Icons.person_2_outlined,
                   false,
                   _userNameTextController,
@@ -84,19 +92,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   height: 20,
                 ),
                 reusableTextField(
-                  "Enter Email",
+                  "Email",
                   Icons.email,
                   false,
                   _emailTextController,
                 ),
                 SizedBox(height: 20),
                 reusableTextField(
-                  "Enter Password",
+                  "Password",
                   Icons.lock_outline,
                   true,
                   _passwordTextController,
                 ),
-                SizedBox(height: 20),
+  SizedBox(height: 20),
                 signInSignUpButton(context, false, () {
                   final userName = _userNameTextController.text.trim();
                   final email = _emailTextController.text.trim();
@@ -110,16 +118,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     FirebaseAuth.instance
   .createUserWithEmailAndPassword(email: email, password: password)
   .then((value) {
-    // Create a reference to the user node in the database
     DatabaseReference userRef = databaseRef.child('users').child(value.user!.uid);
-
-    // Create a map with the user data to be written to the database
     Map<String, dynamic> userData = {
       'username': userName,
       'email': email,
     };
-
-    // Write the user data to the database
     userRef.set(userData).then((_) {
       _logger.info("Account created");
       Navigator.push(
@@ -131,6 +134,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   });
                   }
                 }),
+                SizedBox(height: 20),
               ],
             ),
           ),

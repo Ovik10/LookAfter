@@ -66,7 +66,7 @@ final userData = dataSnapshot.snapshot.value as Map<dynamic, dynamic>;
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   return CircleAvatar(
-                    radius: 50,
+                     radius: 100,
                     backgroundImage: NetworkImage(snapshot.data!),
                   );
                 } else if (snapshot.hasError) {
@@ -76,6 +76,7 @@ final userData = dataSnapshot.snapshot.value as Map<dynamic, dynamic>;
                 }
               },
             ),
+            SizedBox(height: 60),
             Text(
               'Email:',
               style: TextStyle(fontWeight: FontWeight.bold),
@@ -87,6 +88,7 @@ final userData = dataSnapshot.snapshot.value as Map<dynamic, dynamic>;
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             Text(_displayName ?? 'Loading...'),  
+            SizedBox(height: 40),
             ElevatedButton(
   onPressed: () {
     Navigator.push(
