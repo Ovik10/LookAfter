@@ -125,12 +125,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
     };
     userRef.set(userData).then((_) {
       _logger.info("Account created");
-      Navigator.push(
-        context, MaterialPageRoute(builder: (context) => HomeScreen()));
+
+      // Automatically sign in the user after successful sign-up
+      FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password)
+        .then((userCredential) {
+          _logger.info("User signed in after sign-up");
+          Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen()));
+        })
+        .catchError((error) {
+          _logger.severe("Error signing in after sign-up: $error");
+        });
     });
   })
   .onError((error, stackTrace) {
-    _logger.severe("Error ${error.toString()}", error, stackTrace);
+    _logger.severe("Error creating account: $error", error, stackTrace);
   });
                   }
                 }),
