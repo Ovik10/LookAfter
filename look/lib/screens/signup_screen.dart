@@ -1,18 +1,18 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:look/main.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:look/reusable_widgets/reusable_widget.dart';
 import 'package:look/screens/home_screen.dart';
 import 'package:look/utils/color_utils.dart';
 import 'package:logging/logging.dart';
-import 'package:firebase_database/firebase_database.dart';
-
 
 final Logger _logger = Logger('SignUpScreen');
 
 class SignUpScreen extends StatefulWidget {
-  const SignUpScreen({super.key});
+  const SignUpScreen({Key? key});
 
   @override
   State<SignUpScreen> createState() => _SignUpScreenState();
@@ -32,20 +32,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-   bool _isEmailValid(String email) {
+  bool _isEmailValid(String email) {
     return RegExp(
             r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$")
         .hasMatch(email);
   }
 
-
   @override
-  
   Widget build(BuildContext context) {
     final DatabaseReference databaseRef = FirebaseDatabase.instanceFor(
-  app: Firebase.app(),
-  databaseURL: 'https://lookafter-dae81-default-rtdb.europe-west1.firebasedatabase.app/',
-).ref();
+      app: Firebase.app(),
+      databaseURL:
+          'https://lookafter-dae81-default-rtdb.europe-west1.firebasedatabase.app/',
+    ).ref();
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -69,19 +68,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ),
         child: SingleChildScrollView(
           child: Padding(
-            padding:
-                EdgeInsets.fromLTRB(20, MediaQuery.of(context).size.height * 0.4, 20, 0),
+            padding: EdgeInsets.fromLTRB(
+                20, MediaQuery.of(context).size.height * 0.4, 20, 0),
             child: Column(
               children: <Widget>[
                 Text(
-      "Look After",
-      style: TextStyle(
-        color: Colors.white,
-        fontSize: 50,
-        fontWeight: FontWeight.bold,
-      ),
-    ),
-    SizedBox(height: 80,),
+                  "Look After",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 50,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 80,),
                 reusableTextField(
                   "UserName",
                   Icons.person_2_outlined,
@@ -104,7 +103,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   true,
                   _passwordTextController,
                 ),
-  SizedBox(height: 20),
+                SizedBox(height: 20),
                 signInSignUpButton(context, false, () {
                   final userName = _userNameTextController.text.trim();
                   final email = _emailTextController.text.trim();
@@ -112,34 +111,53 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
                   if (userName.isEmpty || email.isEmpty || password.isEmpty) {
                     _showSnackBar('Please fill all the fields.');
-                     } else if (!_isEmailValid(email)) {
+                  } else if (!_isEmailValid(email)) {
                     _showSnackBar('Please enter a valid email address.');
                   } else {
                     FirebaseAuth.instance
-  .createUserWithEmailAndPassword(email: email, password: password)
-  .then((value) {
-    DatabaseReference userRef = databaseRef.child('users').child(value.user!.uid);
-    Map<String, dynamic> userData = {
-      'username': userName,
-      'email': email,
-    };
-    userRef.set(userData).then((_) {
-      _logger.info("Account created");
+                        .createUserWithEmailAndPassword(
+                            email: email, password: password)
+                        .then((value) async {
+                      final userRef =
+                          databaseRef.child('users').child(value.user!.uid);
+                      Map<String, dynamic> userData = {
+                        'username': userName,
+                        'email': email,
+                      };
 
-      // Automatically sign in the user after successful sign-up
-      FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password)
-        .then((userCredential) {
-          _logger.info("User signed in after sign-up");
-          Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen()));
-        })
-        .catchError((error) {
-          _logger.severe("Error signing in after sign-up: $error");
-        });
-    });
-  })
-  .onError((error, stackTrace) {
-    _logger.severe("Error creating account: $error", error, stackTrace);
-  });
+                      // Create Firestore document for the user
+await FirebaseFirestore.instance
+    .collection('users')
+    .doc(value.user!.uid)
+    .set({
+  ...userData, // Spread the existing userData map
+  'contacts': [], // Add an empty list of contacts
+  'email': email, // Add the email to the document
+});
+
+                      // Update Realtime Database with user data
+                      userRef.set(userData).then((_) {
+                        _logger.info("Account created");
+
+                        // Automatically sign in the user after successful sign-up
+                        FirebaseAuth.instance
+                            .signInWithEmailAndPassword(
+                                email: email, password: password)
+                            .then((userCredential) {
+                          _logger.info("User signed in after sign-up");
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => HomeScreen()));
+                        }).catchError((error) {
+                          _logger.severe(
+                              "Error signing in after sign-up: $error");
+                        });
+                      });
+                    }).catchError((error, stackTrace) {
+                      _logger.severe(
+                          "Error creating account: $error", error, stackTrace);
+                    });
                   }
                 }),
                 SizedBox(height: 20),
