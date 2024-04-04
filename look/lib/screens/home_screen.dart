@@ -150,7 +150,7 @@ Future<void> getContactList() async {
   final userDocRef = FirebaseFirestore.instance.collection('users').doc(userId);
 final snapshot = await userDocRef.get();
 final contacts = List<String>.from(snapshot.get('contacts'));
-
+print(contacts);
     setState(() {
       _contactList = contacts;
     });
