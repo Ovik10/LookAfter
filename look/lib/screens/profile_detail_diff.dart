@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:look/screens/home_screen.dart';
 import 'package:look/screens/map_diff.dart';
-import 'package:look/screens/profile_change.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -19,7 +18,7 @@ class ProfileDetailDiff extends StatefulWidget {
 class _ProfileDetailState extends State<ProfileDetailDiff> {
   String? _userEmail;
   String? _displayName;
-   late String _loggedInUserId;
+  late String _loggedInUserId;
 
   Future<String?> _getProfilePictureUrl() async {
     final ref = FirebaseStorage.instance.ref().child('profile_images/${widget.userId}.jpg');
@@ -38,7 +37,7 @@ class _ProfileDetailState extends State<ProfileDetailDiff> {
     _getLoggedInUserId();
   }
 
- Future<void> _getLoggedInUserId() async {
+  Future<void> _getLoggedInUserId() async {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
@@ -68,6 +67,7 @@ class _ProfileDetailState extends State<ProfileDetailDiff> {
       });
     }
   }
+
   Future<void> _deleteContact(String userId) async {
     try {
       await FirebaseFirestore.instance.collection('users').doc(_loggedInUserId).update({
@@ -75,14 +75,15 @@ class _ProfileDetailState extends State<ProfileDetailDiff> {
       });
       
       Navigator.pop(context);
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => HomeScreen()),
-    );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HomeScreen()),
+      );
     } catch (e) {
       print('Error deleting contact: $e');
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -96,15 +97,25 @@ class _ProfileDetailState extends State<ProfileDetailDiff> {
             FutureBuilder<String?>(
               future: _getProfilePictureUrl(),
               builder: (context, snapshot) {
-                if (snapshot.hasData) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return CircularProgressIndicator();
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else if (snapshot.hasData) {
                   return CircleAvatar(
                     radius: 100,
                     backgroundImage: NetworkImage(snapshot.data!),
                   );
-                } else if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
                 } else {
-                  return CircularProgressIndicator();
+                  return CircleAvatar(
+                    radius: 100,
+                    backgroundColor: Colors.grey, // Set default color to grey
+                    child: Icon(
+                      Icons.person,
+                      size: 100,
+                      color: Colors.white,
+                    ),
+                  );
                 }
               },
             ),
@@ -134,9 +145,9 @@ class _ProfileDetailState extends State<ProfileDetailDiff> {
             ),
             SizedBox(height: 20),
             ElevatedButton(
-  onPressed: () => _deleteContact(widget.userId),
-  child: Text('Delete Contact'),
-),
+              onPressed: () => _deleteContact(widget.userId),
+              child: Text('Delete Contact'),
+            ),
           ],
         ),
       ),

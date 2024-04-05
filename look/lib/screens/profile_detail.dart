@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:look/screens/profile_change.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:look/screens/signin_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class ProfileDetail extends StatefulWidget {
-  
   final FirebaseAuth auth;
   final FirebaseStorage storage;
-  
+
   const ProfileDetail({
     Key? key,
     required this.auth,
@@ -55,6 +58,24 @@ class _ProfileDetailState extends State<ProfileDetail> {
     );
   }
 
+  Future<void> _deleteProfile(String password) async {
+  try {
+    // Reauthenticate user
+    AuthCredential credential = EmailAuthProvider.credential(email: _userEmail!, password: password);
+    await widget.auth.currentUser?.reauthenticateWithCredential(credential);
+
+    // Delete user account
+    await FirebaseAuth.instance.currentUser?.delete();
+
+    // Handle any additional cleanup or navigation logic
+
+  } catch (e) {
+    // Handle error
+    print('Error deleting user: $e');
+  }
+}
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,15 +89,25 @@ class _ProfileDetailState extends State<ProfileDetail> {
             FutureBuilder<String?>(
               future: _getProfilePictureUrl(widget.auth.currentUser!.uid),
               builder: (context, snapshot) {
-                if (snapshot.hasData) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return CircularProgressIndicator();
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else if (snapshot.hasData) {
                   return CircleAvatar(
                     radius: 100,
                     backgroundImage: NetworkImage(snapshot.data!),
                   );
-                } else if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
                 } else {
-                  return CircularProgressIndicator();
+                  return CircleAvatar(
+                    radius: 100,
+                    backgroundColor: Colors.grey,
+                    child: Icon(
+                      Icons.person,
+                      size: 100,
+                      color: Colors.white,
+                    ),
+                  );
                 }
               },
             ),
@@ -97,9 +128,66 @@ class _ProfileDetailState extends State<ProfileDetail> {
               onPressed: _updateProfile,
               child: Text('Update Profile'),
             ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => _buildPasswordDialog(),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red, // Set button color to red
+              ),
+              child: Text('Delete Profile'),
+            ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildPasswordDialog() {
+    TextEditingController passwordController = TextEditingController();
+    return AlertDialog(
+      title: Text('Confirm Deletion'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('To confirm deletion, please enter your password:'),
+          SizedBox(height: 10),
+          TextField(
+            controller: passwordController,
+            obscureText: true,
+            decoration: InputDecoration(
+              labelText: 'Password',
+              border: OutlineInputBorder(),
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: Text('Cancel'),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            String password = passwordController.text.trim();
+            if (password.isNotEmpty) {
+              _deleteProfile(password);
+              Navigator.pop(context);
+            }
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.red, // Set button color to red
+          ),
+          child: Text('Delete'),
+        ),
+      ],
     );
   }
 }

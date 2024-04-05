@@ -23,14 +23,25 @@ final DatabaseReference databaseRef = FirebaseDatabase.instanceFor(
   app: Firebase.app(),
   databaseURL: 'https://lookafter-dae81-default-rtdb.europe-west1.firebasedatabase.app/',
 ).ref();
+late Timer _locationTimer;
+
 
   @override
   void initState() {
     super.initState();
     _getCurrentLocation();
+     _locationTimer = Timer.periodic(Duration(seconds: 5), (timer) {
+      _getCurrentLocation();
+    });
+  }
+  @override
+  void dispose() {
+    super.dispose();
+    _locationTimer.cancel();
   }
 
   void _getCurrentLocation() async {
+  try {
     final location = Location();
     final LocationData locationData = await location.getLocation();
     setState(() {
@@ -44,17 +55,21 @@ final DatabaseReference databaseRef = FirebaseDatabase.instanceFor(
       );
       _updateDatabaseWithLocation(_currentLocation);
     });
+  } catch (e) {
+    print('Error getting current location: $e');
   }
-
+}
   void _updateDatabaseWithLocation(LocationData location) {
-    final userId = FirebaseAuth.instance.currentUser?.uid;
-    if (userId != null) {
+  final userId = FirebaseAuth.instance.currentUser?.uid;
+  if (userId != null) {
+    final currentTime = DateTime.now().toUtc().millisecondsSinceEpoch;
     databaseRef.child('users').child(userId).update({
       'latitude': location.latitude!,
       'longitude': location.longitude!,
+      'timestamp': currentTime, 
     });
   }
-  }
+}
 
   @override
   Widget build(BuildContext context) {
