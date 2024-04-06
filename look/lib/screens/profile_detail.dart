@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:look/screens/home_screen.dart';
 import 'package:look/screens/profile_change.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:look/screens/signin_screen.dart';
@@ -17,10 +18,16 @@ class ProfileDetail extends StatefulWidget {
     required this.storage,
   }) : super(key: key);
 
+  
+
   @override
   State<ProfileDetail> createState() => _ProfileDetailState();
 }
 
+final DatabaseReference databaseRef = FirebaseDatabase.instanceFor(
+  app: Firebase.app(),
+  databaseURL: 'https://lookafter-dae81-default-rtdb.europe-west1.firebasedatabase.app/',
+).ref();
 class _ProfileDetailState extends State<ProfileDetail> {
   String? _userEmail;
   String? _displayName;
@@ -64,11 +71,25 @@ class _ProfileDetailState extends State<ProfileDetail> {
     AuthCredential credential = EmailAuthProvider.credential(email: _userEmail!, password: password);
     await widget.auth.currentUser?.reauthenticateWithCredential(credential);
 
+    // Delete user data from Firestore
+    FirebaseFirestore.instance.collection('users').doc(widget.auth.currentUser!.uid).delete();
+
+    // Delete user data from Realtime Database
+    databaseRef.child('users').child(widget.auth.currentUser!.uid).remove();
+
+    // Delete user data from Firebase Storage
+    final firebaseStorageRef = FirebaseStorage.instance
+          .ref()
+          .child('profile_images/${widget.auth.currentUser!.uid}.jpg');
+      firebaseStorageRef.delete();
+
     // Delete user account
     await FirebaseAuth.instance.currentUser?.delete();
 
-    // Handle any additional cleanup or navigation logic
-
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => SignInScreen()),
+    );
   } catch (e) {
     // Handle error
     print('Error deleting user: $e');
