@@ -134,6 +134,8 @@ await FirebaseFirestore.instance
   'contacts': [], // Add an empty list of contacts
   'email': email, // Add the email to the document
 });
+// Create chats collection for the user ¨
+ await FirebaseFirestore.instance.collection('users').doc(value.user!.uid).collection('chats').doc('dummy').set({});
 
                       // Update Realtime Database with user data
                       userRef.set(userData).then((_) {

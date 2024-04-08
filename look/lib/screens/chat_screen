@@ -1,0 +1,85 @@
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+class ChatScreen extends StatelessWidget {
+  final String chatId;
+
+  const ChatScreen({required this.chatId});
+
+  @override
+  Widget build(BuildContext context) {
+    TextEditingController _messageController = TextEditingController();
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Chat'),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('chats')
+                  .doc(chatId)
+                  .collection('messages')
+                  .orderBy('timestamp', descending: true)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return Center(child: CircularProgressIndicator());
+                }
+
+                List<QueryDocumentSnapshot> messageDocs = snapshot.data!.docs;
+                return ListView.builder(
+                  reverse: true,
+                  itemCount: messageDocs.length,
+                  itemBuilder: (context, index) {
+                    Map<String, dynamic> messageData =
+                        messageDocs[index].data() as Map<String, dynamic>;
+                    return ListTile(
+                      title: Text(messageData['text']),
+                      subtitle: Text(messageData['senderId']),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _messageController,
+                    decoration: InputDecoration(
+                      hintText: 'Type a message...',
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.send),
+                  onPressed: () {
+                    _sendMessage(_messageController.text.trim());
+                    _messageController.clear();
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _sendMessage(String message) {
+    if (message.isNotEmpty) {
+      FirebaseFirestore.instance.collection('chats').doc(chatId).collection('messages').add({
+        'text': message,
+        'senderId': FirebaseAuth.instance.currentUser!.uid,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+    }
+  }
+}

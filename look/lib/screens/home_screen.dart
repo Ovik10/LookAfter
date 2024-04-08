@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:look/reusable_widgets/my_drawer.dart';
 import 'package:look/screens/add_contact.dart';
+import 'package:look/screens/chat_screen';
 import 'package:look/screens/map.dart';
 import 'package:look/screens/profile_change.dart';
 import 'package:look/screens/profile_detail.dart';
@@ -19,11 +20,19 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+ @override
+  void initState() {
+    super.initState();
+    getContactList();
+    getChatList();
+  }
+
 
   @override
 void didChangeDependencies() {
   super.didChangeDependencies();
   getContactList();
+  getChatList();
 }
 
   void navigateToHome() {
@@ -56,6 +65,7 @@ void didChangeDependencies() {
           }
 
   List<Object> _contactList = [];
+  List<String> _chatList = [];
   
 
   @override
@@ -140,10 +150,37 @@ void didChangeDependencies() {
               );
             },
           ),
-                ]
+               SizedBox(height: 20),
+                Text(
+                  'Chats',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24,
+                  ),
+                ),
+                if (_chatList.isEmpty)
+                  Text('You have no chats yet.')
+                else
+                  ListView(
+                    shrinkWrap: true,
+                    children: _chatList.map((chat) {
+                      return ListTile(
+                        title: Text('Chat: $chat'), // Display chat information
+                        onTap: () {
+                          Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ChatScreen(chatId: chat)),
+              );
+                        },
+                      );
+                    }).toList(),
+                  ),
+              ],
+            ),
+          ),
         ),
       ),
-    ),),);
+    );
   }
 Future<void> getContactList() async {
   final String? userId = FirebaseAuth.instance.currentUser?.uid;
@@ -153,6 +190,20 @@ final contacts = List<String>.from(snapshot.get('contacts'));
 print(contacts);
     setState(() {
       _contactList = contacts;
+    });
+}
+Future<void> getChatList() async {
+  final String? userId = FirebaseAuth.instance.currentUser?.uid;
+  final userChatsSnapshot = await FirebaseFirestore.instance
+      .collection('users')
+      .doc(userId)
+      .collection('chats')
+      .get();
+
+  final List<String> chatIds = userChatsSnapshot.docs.map((doc) => doc.id).toList();
+
+setState(() {
+      _chatList = chatIds;
     });
 }
 Future<String> getUserName(String aUserId) async {

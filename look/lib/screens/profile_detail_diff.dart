@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:look/screens/chat_screen';
 import 'package:look/screens/home_screen.dart';
 import 'package:look/screens/map_diff.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -6,6 +7,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:uuid/uuid.dart';
 
 class ProfileDetailDiff extends StatefulWidget {
   final String userId;
@@ -83,6 +85,25 @@ class _ProfileDetailState extends State<ProfileDetailDiff> {
       print('Error deleting contact: $e');
     }
   }
+  void _startChat(String chatId) async {
+  try {
+    // Add the chatId to the current user's chats collection
+    await FirebaseFirestore.instance.collection('users').doc(_loggedInUserId).collection('chats').doc(chatId).set({});
+
+    // Add the chatId to the other user's chats collection
+    await FirebaseFirestore.instance.collection('users').doc(widget.userId).collection('chats').doc(chatId).set({});
+
+    // Navigate to the ChatScreen with the provided chatId
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ChatScreen(chatId: chatId),
+      ),
+    );
+  } catch (e) {
+    print('Error starting chat: $e');
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -148,6 +169,13 @@ class _ProfileDetailState extends State<ProfileDetailDiff> {
               onPressed: () => _deleteContact(widget.userId),
               child: Text('Delete Contact'),
             ),
+         ElevatedButton(
+  onPressed: () {
+    String chatId = Uuid().v4();
+    _startChat(chatId);
+  },
+  child: Text('Start new chat'),
+)
           ],
         ),
       ),
