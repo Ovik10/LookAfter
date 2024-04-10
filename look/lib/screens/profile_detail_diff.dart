@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:look/screens/chat_screen';
+import 'package:look/screens/chat_screen.dart';
 import 'package:look/screens/home_screen.dart';
 import 'package:look/screens/map_diff.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -69,6 +69,23 @@ class _ProfileDetailState extends State<ProfileDetailDiff> {
       });
     }
   }
+  Future<String?> _getUserName(String userId) async {
+  final DatabaseReference databaseRef = FirebaseDatabase.instanceFor(
+      app: Firebase.app(),
+      databaseURL: 'https://lookafter-dae81-default-rtdb.europe-west1.firebasedatabase.app/',
+    ).ref();
+    final userRef = databaseRef.child('users/$userId');
+    final dataSnapshot = await userRef.once().catchError((error) {
+      print("Error retrieving data from Firebase: $error");
+    });
+    final userData = dataSnapshot.snapshot.value as Map<dynamic, dynamic>;
+    if (userData != null) {
+      
+        _displayName = userData['username'];
+      
+    }
+    return _displayName;
+  }
 
   Future<void> _deleteContact(String userId) async {
     try {
@@ -87,6 +104,22 @@ class _ProfileDetailState extends State<ProfileDetailDiff> {
   }
   void _startChat(String chatId) async {
   try {
+
+    // Fetch usernames of both users
+    final String? loggedInUserDisplayName = await _getUserName(_loggedInUserId);
+    final String? otherUserDisplayName = await _getUserName(widget.userId);
+
+    
+      // Add the chatId to the current user's chats collection with the other user's display name
+      await FirebaseFirestore.instance.collection('chats').doc(chatId).set({
+        'name2': otherUserDisplayName
+      });
+
+      // Add the chatId to the other user's chats collection with the current user's display name
+      await FirebaseFirestore.instance.collection('chats').doc(chatId).set({
+        'name1': loggedInUserDisplayName
+      });
+
     // Add the chatId to the current user's chats collection
     await FirebaseFirestore.instance.collection('users').doc(_loggedInUserId).collection('chats').doc(chatId).set({});
 

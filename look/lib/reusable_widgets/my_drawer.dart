@@ -19,14 +19,14 @@ class MyDrawer extends StatelessWidget {
         padding: EdgeInsets.zero,
         children: <Widget>[
           DrawerHeader(
+            padding: EdgeInsets.zero,
             decoration: BoxDecoration(
-              color: Colors.blue,
+              color: Color.fromARGB(255, 27, 145, 255),
             ),
-            child: Text(
-              'Look After',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 24,
+            child: Container(
+              child: Image.asset(
+                'assets/logo.png', // Replace 'your_image.png' with the path to your image asset
+                fit: BoxFit.fill, // Ensure the image covers the entire container
               ),
             ),
           ),
@@ -36,7 +36,7 @@ class MyDrawer extends StatelessWidget {
             onTap: onHomeTap,
           ),
           ListTile(
-            leading: Icon(Icons.man),
+            leading: Icon(Icons.person),
             title: Text('Profile'),
             onTap: onProfileTap,
           ),
