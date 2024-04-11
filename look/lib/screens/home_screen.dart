@@ -67,183 +67,287 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Object> _contactList = [];
   List<String> _chatList = [];
 
-@override
-Widget build(BuildContext context) {
-  String? userId = FirebaseAuth.instance.currentUser?.uid;
-  return Scaffold(
-    appBar: AppBar(
-      title: Text(
-        'Look After',
-        style: TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-          fontSize: 20, // Adjust the font size as needed
-          letterSpacing: 1.5, // Adjust the letter spacing as needed
-        ),
-      ),
-    ),
-    drawer: MyDrawer(
-      onHomeTap: navigateToHome,
-      onProfileTap: navigateToProfile,
-      onLogoutTap: logoutUser,
-    ),
-    body: Container(
-      child: SingleChildScrollView(
-        child: Padding(
-          padding:
-              EdgeInsets.fromLTRB(20, MediaQuery.of(context).size.height * 0.05, 20, 0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Map',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 24,
-                  color: Colors.white, // Text color
-                  letterSpacing: 1.2, // Adjust the letter spacing as needed
-                ),
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                child: Text(
-                  'Show Map',
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => MapSample()),
-                  );
-                },
-              ),
-              SizedBox(height: 20),
-              Text(
-                'Contacts',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 24,
-                  color: Colors.white, // Text color
-                  letterSpacing: 1.2, // Adjust the letter spacing as needed
-                ),
-              ),
-              if (_contactList.isEmpty)
-                Text(
-                  'You have no contacts yet.',
-                  style: TextStyle(
-                    color: Colors.white, // Text color
-                    fontStyle: FontStyle.italic, // Add italic style
-                  ),
-                )
-              else
-                ListView(
-                  shrinkWrap: true,
-                  children: _contactList.map((contact) {
-                    return ListTile(
-                      title: FutureBuilder<String>(
-                        future: getUserName(contact.toString()),
-                        builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-                          if (snapshot.connectionState == ConnectionState.done) {
-                            print(contact.toString());
-                            return Text(
-                              snapshot.data ?? 'Unknown user',
-                              style: TextStyle(
-                                color: Colors.white, // Text color
-                              ),
-                            );
-                          } else {
-                            return CircularProgressIndicator();
-                          }
-                        },
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                ProfileDetailDiff(userId: contact.toString()),
-                          ),
-                        );
-                      },
-                    );
-                  }).toList(),
-                ),
-              ElevatedButton(
-              
-                child: Text(
-                  'Add Contact',
-                  
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => AddContact()),
-                  );
-                },
-              ),
-              SizedBox(height: 20),
-              Text(
-                'Chats',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 24,
-                  color: Colors.white, // Text color
-                  letterSpacing: 1.2, // Adjust the letter spacing as needed
-                ),
-              ),
-              if (_chatList.isEmpty)
-                Text(
-                  'You have no chats yet.',
-                  style: TextStyle(
-                    color: Colors.white, // Text color
-                    fontStyle: FontStyle.italic, // Add italic style
-                  ),
-                )
-              else
-                ListView(
-                  shrinkWrap: true,
-                  children: _chatList.map((chat) {
-                    return ListTile(
-                      title: Text(
-                        'Chat: $chat', // Display chat information
-                        style: TextStyle(
-                          color: Colors.white, // Text color
-                        ),
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => ChatScreen(chatId: chat)),
-                        );
-                      },
-                    );
-                  }).toList(),
-                ),
-            ],
+  @override
+  Widget build(BuildContext context) {
+    String? userId = FirebaseAuth.instance.currentUser?.uid;
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Look After',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 20, 
+            letterSpacing: 1.5, 
           ),
         ),
       ),
+      drawer: MyDrawer(
+        onHomeTap: navigateToHome,
+        onProfileTap: navigateToProfile,
+        onLogoutTap: logoutUser,
+      ),
+      body: Container(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(
+                20, MediaQuery.of(context).size.height * 0.05, 20, 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Map',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24,
+                    color: Colors.white, 
+                    letterSpacing: 1.2, 
+                  ),
+                ),
+                Divider(
+                  
+                  color: Colors.white,
+                  thickness: 2.0,
+                ),
+                SizedBox(height: 20),
+                Container(
+  alignment: Alignment.centerRight,
+  child: ElevatedButton(
+                  child: Text(
+                    'Show Map',
+                  ),
+                  style: ElevatedButton.styleFrom(
+      backgroundColor: Colors.green,
     ),
-  );
-}
-Future<Map<String, String>> _getChatParticipants(String chatId) async {
-  final docSnapshot = await FirebaseFirestore.instance
-      .collection('chats')
-      .doc(chatId)
-      .get();
-      
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => MapSample()),
+                    );
+                  },
+                ),),
+                SizedBox(height: 20),
+                Text(
+                  'Contacts',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24,
+                    color: Colors.white, 
+                    letterSpacing: 1.2, 
+                  ),
+                ),
+                Divider(
+              
+                  color: Colors.white,
+                  thickness: 2.0,
+                ),
+                if (_contactList.isEmpty)
+                  Text(
+                    'You have no contacts yet.',
+                    style: TextStyle(
+                      color: Colors.white, // Text color
+                      fontStyle: FontStyle.italic, // Add italic style
+                    ),
+                  )
+                else
+                  ListView(
+                    shrinkWrap: true,
+                    children: _contactList.map((contact) {
+                      return Column(
+                        children: [
+                          ListTile(
+                            leading: FutureBuilder<String>(
+                              future: getProfileImageUrl(contact.toString()),
+                              builder: (BuildContext context,
+                                  AsyncSnapshot<String> snapshot) {
+                                if (snapshot.connectionState ==
+                                        ConnectionState.done &&
+                                    snapshot.hasData) {
+                                  return CircleAvatar(
+                                    backgroundImage: NetworkImage(
+                                        snapshot.data!), // Use the fetched URL
+                                    radius: 20, // Adjust the radius as needed
+                                  );
+                                } else {
+                                  return CircleAvatar(
+                                    backgroundColor: Colors
+                                        .white, // Placeholder background color while loading
+                                    radius: 20,
+                                  );
+                                }
+                              },
+                            ),
+                            title: FutureBuilder<String>(
+                              future: getUserName(contact.toString()),
+                              builder: (BuildContext context,
+                                  AsyncSnapshot<String> snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.done) {
+                                  print(contact.toString());
+                                  return Text(
+                                    snapshot.data ?? 'Unknown user',
+                                    style: TextStyle(
+                                      color: Colors.white, // Text color
+                                    ),
+                                  );
+                                } else {
+                                  return CircularProgressIndicator();
+                                }
+                              },
+                            ),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ProfileDetailDiff(
+                                      userId: contact.toString()),
+                                ),
+                              );
+                            },
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(
+                                right: MediaQuery.of(context).size.width * 0.3),
+                            child: Divider(
+                              color: Colors.white,
+                              thickness: 0.5,
+                              height: 10, // Adjust the height as needed
+                            ),
+                          ),
+                        ],
+                      );
+                    }).toList(),
+                  ),
+                  Container(
+  alignment: Alignment.centerRight,
+  child:
+                ElevatedButton(
+                  child: Text(
+                    'Add Contact',
+                  ),
+                  style: ElevatedButton.styleFrom(
+      backgroundColor: Colors.yellow,
+    ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => AddContact()),
+                    );
+                  },
+                ),),
+                SizedBox(height: 20),
+                Text(
+                  'Chats',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24,
+                    color: Colors.white, // Text color
+                    letterSpacing: 1.2, // Adjust the letter spacing as needed
+                  ),
+                ),
+                Divider(
+                  // Add a white divider
+                  color: Colors.white,
+                  thickness: 2.0,
+                ),
+                if (_chatList.isEmpty)
+                  Text(
+                    'You have no chats yet.',
+                    style: TextStyle(
+                      color: Colors.white, // Text color
+                      fontStyle: FontStyle.italic, // Add italic style
+                    ),
+                  )
+                else
+                  ListView(
+                    shrinkWrap: true,
+                    children: _chatList.map((chat) {
+                      return FutureBuilder<Map<String, String>>(
+                        future: _getChatParticipants(chat),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return CircularProgressIndicator();
+                          } else if (snapshot.hasData) {
+                            final user1 = snapshot.data!['user1'];
+                            final user2 = snapshot.data!['user2'];
+                            return Column(
+                              children: [
+                                ListTile(
+                                  leading: CircleAvatar(
+                                    backgroundColor:
+                                        Colors.white, // White circle background
+                                    radius: 6, // Adjust the radius as needed
+                                  ),
+                                  title: Text(
+                                    '$user1 and $user2',
+                                    style: TextStyle(
+                                      color: Colors.white, // Text color
+                                    ),
+                                  ),
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            ChatScreen(chatId: chat),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                      right: MediaQuery.of(context).size.width *
+                                          0.3),
+                                  child: Divider(
+                                    color: Colors.white,
+                                    thickness: 0.5,
+                                    height: 10, // Adjust the height as needed
+                                  ),
+                                ),
+                              ],
+                            );
+                          } else {
+                            return Container(); // Placeholder for empty chat
+                          }
+                        },
+                      );
+                    }).toList(),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
-  final user1 = await docSnapshot.get('name1') ?? 'Unknown';
-  final user2 = await docSnapshot.get('name2') ?? 'Unknown';
-print(user2);
-  return {'user1': user1, 'user2': user2};
-  
-}
+  Future<String> getProfileImageUrl(String userId) async {
+    final storageRef =
+        FirebaseStorage.instance.ref().child('profile_images/$userId.jpg');
+    try {
+      final url = await storageRef.getDownloadURL();
+      return url;
+    } catch (e) {
+      print('Error fetching profile image URL: $e');
+      return '';
+    }
+  }
 
+  Future<Map<String, String>> _getChatParticipants(String chatId) async {
+    final docSnapshot =
+        await FirebaseFirestore.instance.collection('chats').doc(chatId).get();
+
+    final user1 = docSnapshot.data()?['name1'] ?? 'Unknown';
+    final user2 = docSnapshot.data()?['name2'] ?? 'Unknown';
+
+    return {'user1': user1, 'user2': user2};
+  }
 
   Future<void> getContactList() async {
     final String? userId = FirebaseAuth.instance.currentUser?.uid;
-    final userDocRef = FirebaseFirestore.instance.collection('users').doc(userId);
+    final userDocRef =
+        FirebaseFirestore.instance.collection('users').doc(userId);
     final snapshot = await userDocRef.get();
     final contacts = List<String>.from(snapshot.get('contacts'));
     print(contacts);
@@ -260,7 +364,8 @@ print(user2);
         .collection('chats')
         .get();
 
-    final List<String> chatIds = userChatsSnapshot.docs.map((doc) => doc.id).toList();
+    final List<String> chatIds =
+        userChatsSnapshot.docs.map((doc) => doc.id).toList();
 
     setState(() {
       _chatList = chatIds;
@@ -270,7 +375,8 @@ print(user2);
   Future<String> getUserName(String aUserId) async {
     final DatabaseReference databaseRef = FirebaseDatabase.instanceFor(
       app: Firebase.app(),
-      databaseURL: 'https://lookafter-dae81-default-rtdb.europe-west1.firebasedatabase.app/',
+      databaseURL:
+          'https://lookafter-dae81-default-rtdb.europe-west1.firebasedatabase.app/',
     ).ref();
     final auserId = aUserId;
     final userRef = databaseRef.child('users/$auserId');

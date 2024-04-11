@@ -13,12 +13,12 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({Key? key});
 
-  @override
+    @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Look After',
       theme: ThemeData(
-        scaffoldBackgroundColor: Color.fromARGB(255, 14, 108, 248), // Set the scaffold background color
+        scaffoldBackgroundColor: Color.fromARGB(255, 14, 108, 248),
         appBarTheme: AppBarTheme(
           backgroundColor: Colors.transparent,
           elevation: 0,
@@ -35,12 +35,20 @@ class MyApp extends StatelessWidget {
             foregroundColor: MaterialStateProperty.all<Color>(Colors.black),
             side: MaterialStateProperty.all<BorderSide>(
               BorderSide(color: Colors.black),
-          ),),),
+            ),
+          ),
+        ),
         textTheme: TextTheme(
-          headline6: TextStyle(color: Colors.white), // Set white text color for headline6
-          bodyText2: TextStyle(color: Colors.white), // Set white text color for bodyText2
+          headline6: TextStyle(color: Colors.white),
+          bodyText2: TextStyle(color: Colors.white),
           button: TextStyle(fontSize: 16),
         ),
+        inputDecorationTheme: InputDecorationTheme(
+          hintStyle: TextStyle(color: Colors.white),
+          labelStyle: TextStyle(color: Colors.white), // Set label text color to white
+          
+        ),
+        dividerTheme: DividerThemeData(color: Colors.white),
       ),
       home: const SignInScreen(),
     );

@@ -2,11 +2,12 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart'; 
+import 'package:firebase_database/firebase_database.dart';
+import 'package:look/screens/home_screen.dart';
 
 class ChatScreen extends StatelessWidget {
   final String chatId;
-  
+
   const ChatScreen({required this.chatId});
 
   @override
@@ -18,7 +19,52 @@ class ChatScreen extends StatelessWidget {
           'Chat',
           style: TextStyle(fontSize: 24),
         ),
-      ),
+        actions: [
+    IconButton(
+  icon: Icon(Icons.delete),
+  onPressed: () {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Theme(
+          data: ThemeData(
+            brightness: Brightness.light,
+            
+            backgroundColor: Colors.white,
+            
+            textTheme: TextTheme(
+              bodyText1: TextStyle(color: Colors.black),
+              bodyText2: TextStyle(color: Colors.black),
+            ),
+          ),
+          child: AlertDialog(
+            title: Text('Delete Chat', style: TextStyle(color: Colors.black)),
+            content: Text('Are you sure you want to delete this chat?', style: TextStyle(color: Colors.black)),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('Cancel', style: TextStyle(color: Colors.black)),
+              ),
+              TextButton(
+                onPressed: () {
+                  deleteChat();
+                  Navigator.of(context).pop();
+                  Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => HomeScreen()),
+      );
+                },
+                child: Text('Delete', style: TextStyle(color: Colors.red)),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  },
+),],),
       body: Column(
         children: [
           Expanded(
@@ -44,11 +90,13 @@ class ChatScreen extends StatelessWidget {
                     return ListTile(
                       title: Text(
                         messageData['text'],
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold),
                       ),
                       subtitle: Text(
                         messageData['senderId'] ?? 'Unknown',
-                        style: TextStyle(color: const Color.fromARGB(255, 175, 175, 175)),
+                        style: TextStyle(
+                            color: const Color.fromARGB(255, 175, 175, 175)),
                       ),
                     );
                   },
@@ -83,11 +131,37 @@ class ChatScreen extends StatelessWidget {
       ),
     );
   }
+  void deleteChat() async {
+  try {
+    
+
+    DocumentReference chatRef = FirebaseFirestore.instance.collection('chats').doc(chatId);
+    await chatRef.delete();
+
+    // Also delete all messages in the chat
+    QuerySnapshot messagesSnapshot = await chatRef.collection('messages').get();
+    for (DocumentSnapshot messageDoc in messagesSnapshot.docs) {
+      await messageDoc.reference.delete();
+    }
+    String? userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId != null) {
+      DocumentReference userRef = FirebaseFirestore.instance.collection('users').doc(userId).collection('chats').doc(chatId);
+      await userRef.delete();
+    }
+
+    // Navigate back to the previous screen after deletion
+    
+  } catch (error) {
+    print('Error deleting chat: $error');
+    // Show a snackbar or dialog to indicate the error to the user
+  }
+}
 
   Future<String> getUserName(String senderId) async {
     final DatabaseReference databaseRef = FirebaseDatabase.instanceFor(
       app: Firebase.app(),
-      databaseURL: 'https://lookafter-dae81-default-rtdb.europe-west1.firebasedatabase.app/',
+      databaseURL:
+          'https://lookafter-dae81-default-rtdb.europe-west1.firebasedatabase.app/',
     ).ref();
     final userRef = databaseRef.child('users/$senderId');
     final dataSnapshot = await userRef.once().catchError((error) {
@@ -105,7 +179,11 @@ class ChatScreen extends StatelessWidget {
   void _sendMessage(String message) async {
     final userName = await getUserName(FirebaseAuth.instance.currentUser!.uid);
     if (message.isNotEmpty && userName.isNotEmpty) {
-      FirebaseFirestore.instance.collection('chats').doc(chatId).collection('messages').add({
+      FirebaseFirestore.instance
+          .collection('chats')
+          .doc(chatId)
+          .collection('messages')
+          .add({
         'text': message,
         'senderId': userName,
         'timestamp': FieldValue.serverTimestamp(),

@@ -33,7 +33,8 @@ class MapDiffState extends State<MapDiff> {
   @override
   void initState() {
     super.initState();
-    _currentLocation = LocationData.fromMap({'latitude': 0.0, 'longitude': 0.0});
+    _currentLocation =
+        LocationData.fromMap({'latitude': 0.0, 'longitude': 0.0});
     _userRef = databaseRef.child('users').child(widget.userId);
     _initializeContactList();
     _getUserLocationFromDatabase();
@@ -57,8 +58,8 @@ class MapDiffState extends State<MapDiff> {
           _markers.add(
             Marker(
               markerId: MarkerId('userMarker'),
-              position: LatLng(_currentLocation.latitude!,
-                  _currentLocation.longitude!),
+              position: LatLng(
+                  _currentLocation.latitude!, _currentLocation.longitude!),
               infoWindow: InfoWindow(title: 'User Location'),
             ),
           );
@@ -82,8 +83,8 @@ class MapDiffState extends State<MapDiff> {
       zoom: 14.4746,
     );
 
-    if (_currentLocation != LocationData.fromMap(
-        {'latitude': 0.0, 'longitude': 0.0})) {
+    if (_currentLocation !=
+        LocationData.fromMap({'latitude': 0.0, 'longitude': 0.0})) {
       initialCameraPosition = CameraPosition(
         target: LatLng(_currentLocation.latitude!, _currentLocation.longitude!),
         zoom: 18.0,
@@ -111,9 +112,10 @@ class MapDiffState extends State<MapDiff> {
             left: 0,
             right: 0,
             child: Padding(
-              padding: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.01, 
-              left:MediaQuery.of(context).size.width * 0.25, 
-              right: MediaQuery.of(context).size.width * 0.3),
+              padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).size.height * 0.01,
+                  left: MediaQuery.of(context).size.width * 0.25,
+                  right: MediaQuery.of(context).size.width * 0.3),
               child: FloatingActionButton.extended(
                 onPressed: () {
                   _goToContactLocation();

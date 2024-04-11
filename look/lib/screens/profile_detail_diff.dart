@@ -108,25 +108,14 @@ class _ProfileDetailState extends State<ProfileDetailDiff> {
     // Fetch usernames of both users
     final String? loggedInUserDisplayName = await _getUserName(_loggedInUserId);
     final String? otherUserDisplayName = await _getUserName(widget.userId);
-
-    
-      // Add the chatId to the current user's chats collection with the other user's display name
       await FirebaseFirestore.instance.collection('chats').doc(chatId).set({
         'name2': otherUserDisplayName
       });
-
-      // Add the chatId to the other user's chats collection with the current user's display name
       await FirebaseFirestore.instance.collection('chats').doc(chatId).set({
         'name1': loggedInUserDisplayName
       });
-
-    // Add the chatId to the current user's chats collection
     await FirebaseFirestore.instance.collection('users').doc(_loggedInUserId).collection('chats').doc(chatId).set({});
-
-    // Add the chatId to the other user's chats collection
     await FirebaseFirestore.instance.collection('users').doc(widget.userId).collection('chats').doc(chatId).set({});
-
-    // Navigate to the ChatScreen with the provided chatId
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -146,71 +135,114 @@ class _ProfileDetailState extends State<ProfileDetailDiff> {
       ),
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            FutureBuilder<String?>(
-              future: _getProfilePictureUrl(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return CircularProgressIndicator();
-                } else if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                } else if (snapshot.hasData) {
-                  return CircleAvatar(
-                    radius: 100,
-                    backgroundImage: NetworkImage(snapshot.data!),
-                  );
-                } else {
-                  return CircleAvatar(
-                    radius: 100,
-                    backgroundColor: Colors.grey, // Set default color to grey
-                    child: Icon(
-                      Icons.person,
-                      size: 100,
-                      color: Colors.white,
-                    ),
-                  );
-                }
-              },
+  mainAxisAlignment: MainAxisAlignment.center,
+  children: [
+    FutureBuilder<String?>(
+      future: _getProfilePictureUrl(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else if (snapshot.hasData) {
+          return CircleAvatar(
+            radius: 100,
+            backgroundImage: NetworkImage(snapshot.data!),
+          );
+        } else {
+          return CircleAvatar(
+            radius: 100,
+            backgroundColor: Colors.grey, // Set default color to grey
+            child: Icon(
+              Icons.person,
+              size: 100,
+              color: Colors.white,
             ),
-            SizedBox(height: 60),
-            Text(
-              'Email:',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            Text(_userEmail ?? 'Loading...'),
-            SizedBox(height: 20),
-            Text(
-              'Display Name:',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            Text(_displayName ?? 'Loading...'),
-            SizedBox(height: 40),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => MapDiff(userId: widget.userId),
-                  ),
-                );
-              },
-              child: Text('Show Position'),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () => _deleteContact(widget.userId),
-              child: Text('Delete Contact'),
-            ),
-         ElevatedButton(
-  onPressed: () {
-    String chatId = Uuid().v4();
-    _startChat(chatId);
-  },
-  child: Text('Start new chat'),
-)
-          ],
+          );
+        }
+      },
+    ),
+    SizedBox(height: 60),
+    Row(
+      children: [
+        Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20),
+      child: Row(
+        children: [
+        Text(
+          'Email: ',
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
+        Text(_userEmail ?? 'Loading...'),
+     ],
+      ),
+    ),
+  ],
+),
+    SizedBox(height: 20),
+    Row(
+  children: [
+    Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20),
+      child: Row(
+        children: [
+          Text(
+            'Display Name: ',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          Text(_displayName ?? 'Loading...'),
+        ],
+      ),
+    ),
+  ],
+),
+    SizedBox(height: 40),
+    ElevatedButton(
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MapDiff(userId: widget.userId),
+          ),
+        );
+      },
+      child: Text('Show position'),
+      style: ElevatedButton.styleFrom(
+      backgroundColor: Colors.green,
+    ),
+    ),
+    SizedBox(height: 20),
+    Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Padding(
+  padding: EdgeInsets.symmetric(horizontal: 20),
+  child: ElevatedButton(
+    onPressed: () => _deleteContact(widget.userId),
+    style: ElevatedButton.styleFrom(
+      backgroundColor: Colors.red,
+    ),
+    child: Text('Delete contact'),
+  ),
+),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          child: ElevatedButton(
+            onPressed: () {
+              String chatId = Uuid().v4();
+              _startChat(chatId);
+            },
+            child: Text('Start new chat'),
+            style: ElevatedButton.styleFrom(
+      backgroundColor: Colors.orange,
+    ),
+          ),
+        ),
+      ],
+    ),
+  ],
+),
+
       ),
     );
   }

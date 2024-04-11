@@ -18,16 +18,16 @@ class ProfileDetail extends StatefulWidget {
     required this.storage,
   }) : super(key: key);
 
-  
-
   @override
   State<ProfileDetail> createState() => _ProfileDetailState();
 }
 
 final DatabaseReference databaseRef = FirebaseDatabase.instanceFor(
   app: Firebase.app(),
-  databaseURL: 'https://lookafter-dae81-default-rtdb.europe-west1.firebasedatabase.app/',
+  databaseURL:
+      'https://lookafter-dae81-default-rtdb.europe-west1.firebasedatabase.app/',
 ).ref();
+
 class _ProfileDetailState extends State<ProfileDetail> {
   String? _userEmail;
   String? _displayName;
@@ -66,36 +66,39 @@ class _ProfileDetailState extends State<ProfileDetail> {
   }
 
   Future<void> _deleteProfile(String password) async {
-  try {
-    // Reauthenticate user
-    AuthCredential credential = EmailAuthProvider.credential(email: _userEmail!, password: password);
-    await widget.auth.currentUser?.reauthenticateWithCredential(credential);
+    try {
+      // Reauthenticate user
+      AuthCredential credential =
+          EmailAuthProvider.credential(email: _userEmail!, password: password);
+      await widget.auth.currentUser?.reauthenticateWithCredential(credential);
 
-    // Delete user data from Firestore
-    FirebaseFirestore.instance.collection('users').doc(widget.auth.currentUser!.uid).delete();
+      // Delete user data from Firestore
+      FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.auth.currentUser!.uid)
+          .delete();
 
-    // Delete user data from Realtime Database
-    databaseRef.child('users').child(widget.auth.currentUser!.uid).remove();
+      // Delete user data from Realtime Database
+      databaseRef.child('users').child(widget.auth.currentUser!.uid).remove();
 
-    // Delete user data from Firebase Storage
-    final firebaseStorageRef = FirebaseStorage.instance
+      // Delete user data from Firebase Storage
+      final firebaseStorageRef = FirebaseStorage.instance
           .ref()
           .child('profile_images/${widget.auth.currentUser!.uid}.jpg');
       firebaseStorageRef.delete();
 
-    // Delete user account
-    await FirebaseAuth.instance.currentUser?.delete();
+      // Delete user account
+      await FirebaseAuth.instance.currentUser?.delete();
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => SignInScreen()),
-    );
-  } catch (e) {
-    // Handle error
-    print('Error deleting user: $e');
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => SignInScreen()),
+      );
+    } catch (e) {
+      // Handle error
+      print('Error deleting user: $e');
+    }
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -133,39 +136,66 @@ class _ProfileDetailState extends State<ProfileDetail> {
               },
             ),
             SizedBox(height: 60),
-            Text(
-              'Email:',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            Text(_userEmail ?? 'Loading...'),
-            SizedBox(height: 20),
-            Text(
-              'Username:',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            Text(_displayName ?? 'Loading...'),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _updateProfile,
-              child: Text('Update Profile'),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => _buildPasswordDialog(),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red, // Set button color to red
-              ),
-              child: Text('Delete Profile'),
-            ),
+            Column(
+  mainAxisAlignment: MainAxisAlignment.center,
+  children: [
+    Row(
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          child: Text(
+            'Email: ',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
+        Text(_userEmail ?? 'Loading...'),
+      ],
+    ),
+    SizedBox(height: 20),
+    Row(
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          child: Text(
+            'Username: ',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
+        Text(_displayName ?? 'Loading...'),
+      ],
+    ),
+    SizedBox(height: 20),
+   Row(
+  children: [
+    Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20),
+      child: ElevatedButton(
+        onPressed: _updateProfile,
+        child: Text('Update Profile'),
+      ),
+    ),
+    SizedBox(width: 20),
+    Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20),
+      child: ElevatedButton(
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (context) => _buildPasswordDialog(),
+          );
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.red, // Set button color to red
+        ),
+        child: Text('Delete Profile'),
+      ),
+    ),
+  ],
+),
           ],
         ),
-      ),
-    );
+      ]),
+    ));
   }
 
   Widget _buildPasswordDialog() {

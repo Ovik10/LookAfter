@@ -22,10 +22,13 @@ class _AddContactState extends State<AddContact> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Contact'),
-      ),
+  title: Text(
+    'Add Contact',
+    style: TextStyle(fontSize: 24), // Set the font size to 24
+  ),
+),
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Form(
           key: _formKey,
           child: Column(
@@ -34,7 +37,7 @@ class _AddContactState extends State<AddContact> {
               TextFormField(
                 controller: _emailController,
                 decoration: const InputDecoration(
-                  labelText: 'Email',
+                  hintText: 'Please enter an email address',
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -56,10 +59,17 @@ class _AddContactState extends State<AddContact> {
                     ),
                   ),
                 ),
-              ElevatedButton(
-                onPressed: _addContact,
-                child: const Text('Add Contact'),
-              ),
+              SizedBox(height: 15),
+              Container(
+  alignment: Alignment.centerRight,
+  child: ElevatedButton(
+    onPressed: _addContact,
+    child: const Text('Add Contact'),
+    style: ElevatedButton.styleFrom(
+      backgroundColor: Colors.yellow,
+    ),
+  ),
+),
             ],
           ),
         ),
