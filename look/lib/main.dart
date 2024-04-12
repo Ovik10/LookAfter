@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Look After',
       theme: ThemeData(
-        scaffoldBackgroundColor: Color.fromARGB(255, 14, 108, 248),
+        scaffoldBackgroundColor: Color.fromARGB(255, 0, 0, 0),
         appBarTheme: AppBarTheme(
           backgroundColor: Colors.transparent,
           elevation: 0,

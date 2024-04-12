@@ -70,22 +70,25 @@ class _ProfileDetailState extends State<ProfileDetailDiff> {
     }
   }
   Future<String?> _getUserName(String userId) async {
-  final DatabaseReference databaseRef = FirebaseDatabase.instanceFor(
+  try {
+    final DatabaseReference databaseRef = FirebaseDatabase.instanceFor(
       app: Firebase.app(),
       databaseURL: 'https://lookafter-dae81-default-rtdb.europe-west1.firebasedatabase.app/',
     ).ref();
     final userRef = databaseRef.child('users/$userId');
-    final dataSnapshot = await userRef.once().catchError((error) {
-      print("Error retrieving data from Firebase: $error");
-    });
+    final dataSnapshot = await userRef.once();
     final userData = dataSnapshot.snapshot.value as Map<dynamic, dynamic>;
     if (userData != null) {
-      
-        _displayName = userData['username'];
-      
+      final displayName = userData['username'];
+      return displayName;
+    } else {
+      return null;
     }
-    return _displayName;
+  } catch (error) {
+    print("Error retrieving user data: $error");
+    return null;
   }
+}
 
   Future<void> _deleteContact(String userId) async {
     try {
@@ -104,14 +107,11 @@ class _ProfileDetailState extends State<ProfileDetailDiff> {
   }
   void _startChat(String chatId) async {
   try {
-
-    // Fetch usernames of both users
     final String? loggedInUserDisplayName = await _getUserName(_loggedInUserId);
     final String? otherUserDisplayName = await _getUserName(widget.userId);
+    print(otherUserDisplayName);
       await FirebaseFirestore.instance.collection('chats').doc(chatId).set({
-        'name2': otherUserDisplayName
-      });
-      await FirebaseFirestore.instance.collection('chats').doc(chatId).set({
+        'name2': otherUserDisplayName,
         'name1': loggedInUserDisplayName
       });
     await FirebaseFirestore.instance.collection('users').doc(_loggedInUserId).collection('chats').doc(chatId).set({});

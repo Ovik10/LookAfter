@@ -77,8 +77,8 @@ class _HomeScreenState extends State<HomeScreen> {
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
-            fontSize: 20, 
-            letterSpacing: 1.5, 
+            fontSize: 20,
+            letterSpacing: 1.5,
           ),
         ),
       ),
@@ -100,44 +100,43 @@ class _HomeScreenState extends State<HomeScreen> {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 24,
-                    color: Colors.white, 
-                    letterSpacing: 1.2, 
+                    color: Colors.white,
+                    letterSpacing: 1.2,
                   ),
                 ),
                 Divider(
-                  
                   color: Colors.white,
                   thickness: 2.0,
                 ),
                 SizedBox(height: 20),
                 Container(
-  alignment: Alignment.centerRight,
-  child: ElevatedButton(
-                  child: Text(
-                    'Show Map',
+                  alignment: Alignment.centerRight,
+                  child: ElevatedButton(
+                    child: Text(
+                      'Show Map',
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => MapSample()),
+                      );
+                    },
                   ),
-                  style: ElevatedButton.styleFrom(
-      backgroundColor: Colors.green,
-    ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => MapSample()),
-                    );
-                  },
-                ),),
+                ),
                 SizedBox(height: 20),
                 Text(
                   'Contacts',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 24,
-                    color: Colors.white, 
-                    letterSpacing: 1.2, 
+                    color: Colors.white,
+                    letterSpacing: 1.2,
                   ),
                 ),
                 Divider(
-              
                   color: Colors.white,
                   thickness: 2.0,
                 ),
@@ -151,90 +150,96 @@ class _HomeScreenState extends State<HomeScreen> {
                   )
                 else
                   ListView(
-                    shrinkWrap: true,
-                    children: _contactList.map((contact) {
-                      return Column(
-                        children: [
-                          ListTile(
-                            leading: FutureBuilder<String>(
-                              future: getProfileImageUrl(contact.toString()),
-                              builder: (BuildContext context,
-                                  AsyncSnapshot<String> snapshot) {
-                                if (snapshot.connectionState ==
-                                        ConnectionState.done &&
-                                    snapshot.hasData) {
-                                  return CircleAvatar(
-                                    backgroundImage: NetworkImage(
-                                        snapshot.data!), // Use the fetched URL
-                                    radius: 20, // Adjust the radius as needed
-                                  );
-                                } else {
-                                  return CircleAvatar(
-                                    backgroundColor: Colors
-                                        .white, // Placeholder background color while loading
-                                    radius: 20,
-                                  );
-                                }
-                              },
-                            ),
-                            title: FutureBuilder<String>(
-                              future: getUserName(contact.toString()),
-                              builder: (BuildContext context,
-                                  AsyncSnapshot<String> snapshot) {
-                                if (snapshot.connectionState ==
-                                    ConnectionState.done) {
-                                  print(contact.toString());
-                                  return Text(
-                                    snapshot.data ?? 'Unknown user',
-                                    style: TextStyle(
-                                      color: Colors.white, // Text color
-                                    ),
-                                  );
-                                } else {
-                                  return CircularProgressIndicator();
-                                }
-                              },
-                            ),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ProfileDetailDiff(
-                                      userId: contact.toString()),
-                                ),
-                              );
-                            },
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(
-                                right: MediaQuery.of(context).size.width * 0.3),
-                            child: Divider(
-                              color: Colors.white,
-                              thickness: 0.5,
-                              height: 10, // Adjust the height as needed
-                            ),
-                          ),
-                        ],
+  shrinkWrap: true,
+  children: _contactList.map((contact) {
+    return Column(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: Color.fromARGB(255, 22, 22, 22),
+            borderRadius: BorderRadius.circular(12.0),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.5),
+                spreadRadius: 2,
+                blurRadius: 5,
+                offset: Offset(0, 3),
+              ),
+            ],
+          ),
+          child: ListTile(
+            leading: FutureBuilder<String>(
+              future: getProfileImageUrl(contact.toString()),
+              builder: (BuildContext context,
+                  AsyncSnapshot<String> snapshot) {
+                if (snapshot.connectionState ==
+                        ConnectionState.done &&
+                    snapshot.hasData) {
+                  return CircleAvatar(
+                    backgroundImage: NetworkImage(
+                        snapshot.data!), // Use the fetched URL
+                    radius: 20, // Adjust the radius as needed
+                  );
+                } else {
+                  return CircleAvatar(
+                    backgroundColor: Colors
+                        .white, // Placeholder background color while loading
+                    radius: 20,
+                  );
+                }
+              },
+            ),
+            title: FutureBuilder<String>(
+              future: getUserName(contact.toString()),
+              builder: (BuildContext context,
+                  AsyncSnapshot<String> snapshot) {
+                if (snapshot.connectionState ==
+                    ConnectionState.done) {
+                  print(contact.toString());
+                  return Text(
+                    snapshot.data ?? 'Unknown user',
+                    style: TextStyle(
+                      color: Colors.white, // Text color
+                    ),
+                  );
+                } else {
+                  return CircularProgressIndicator();
+                }
+              },
+            ),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ProfileDetailDiff(
+                      userId: contact.toString()),
+                ),
+              );
+            },
+          ),
+        ),
+        SizedBox(height: 10),
+      ],
+    );
+  }).toList(),
+),
+                Container(
+                  alignment: Alignment.centerRight,
+                  child: ElevatedButton(
+                    child: Text(
+                      'Add Contact',
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.yellow,
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => AddContact()),
                       );
-                    }).toList(),
+                    },
                   ),
-                  Container(
-  alignment: Alignment.centerRight,
-  child:
-                ElevatedButton(
-                  child: Text(
-                    'Add Contact',
-                  ),
-                  style: ElevatedButton.styleFrom(
-      backgroundColor: Colors.yellow,
-    ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => AddContact()),
-                    );
-                  },
-                ),),
+                ),
                 SizedBox(height: 20),
                 Text(
                   'Chats',
@@ -260,60 +265,65 @@ class _HomeScreenState extends State<HomeScreen> {
                   )
                 else
                   ListView(
-                    shrinkWrap: true,
-                    children: _chatList.map((chat) {
-                      return FutureBuilder<Map<String, String>>(
-                        future: _getChatParticipants(chat),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return CircularProgressIndicator();
-                          } else if (snapshot.hasData) {
-                            final user1 = snapshot.data!['user1'];
-                            final user2 = snapshot.data!['user2'];
-                            return Column(
-                              children: [
-                                ListTile(
-                                  leading: CircleAvatar(
-                                    backgroundColor:
-                                        Colors.white, // White circle background
-                                    radius: 6, // Adjust the radius as needed
-                                  ),
-                                  title: Text(
-                                    '$user1 and $user2',
-                                    style: TextStyle(
-                                      color: Colors.white, // Text color
-                                    ),
-                                  ),
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            ChatScreen(chatId: chat),
-                                      ),
-                                    );
-                                  },
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(
-                                      right: MediaQuery.of(context).size.width *
-                                          0.3),
-                                  child: Divider(
-                                    color: Colors.white,
-                                    thickness: 0.5,
-                                    height: 10, // Adjust the height as needed
-                                  ),
-                                ),
-                              ],
-                            );
-                          } else {
-                            return Container(); // Placeholder for empty chat
-                          }
-                        },
-                      );
-                    }).toList(),
+  shrinkWrap: true,
+  children: _chatList.map((chat) {
+    return FutureBuilder<Map<String, String>>(
+      future: _getChatParticipants(chat),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState ==
+            ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        } else if (snapshot.hasData) {
+          final user1 = snapshot.data!['user1'];
+          final user2 = snapshot.data!['user2'];
+          return Column(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: Color.fromARGB(255, 22, 22, 22),
+                  borderRadius: BorderRadius.circular(12.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.5),
+                      spreadRadius: 2,
+                      blurRadius: 5,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor:
+                        Colors.white, // White circle background
+                    radius: 6, // Adjust the radius as needed
                   ),
+                  title: Text(
+                    '$user1 and $user2',
+                    style: TextStyle(
+                      color: Colors.white, // Text color
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            ChatScreen(chatId: chat),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              SizedBox(height: 10),
+            ],
+          );
+        } else {
+          return Container(); // Placeholder for empty chat
+        }
+      },
+    );
+  }).toList(),
+),
               ],
             ),
           ),
