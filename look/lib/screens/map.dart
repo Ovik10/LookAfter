@@ -18,32 +18,46 @@ class MapSampleState extends State<MapSample> {
       Completer<GoogleMapController>();
   final Set<Marker> _markers = {};
   late LocationData _currentLocation;
+  late final Location location;
+  StreamSubscription<LocationData>? locationSubscription;
 
 final DatabaseReference databaseRef = FirebaseDatabase.instanceFor(
   app: Firebase.app(),
   databaseURL: 'https://lookafter-dae81-default-rtdb.europe-west1.firebasedatabase.app/',
 ).ref();
-late Timer _locationTimer;
 
 
-  @override
+ @override
   void initState() {
     super.initState();
-    _getCurrentLocation();
-     _locationTimer = Timer.periodic(Duration(seconds: 5), (timer) {
-      _getCurrentLocation();
+    location = Location();
+
+    locationSubscription = location.onLocationChanged.listen((LocationData currentLocation) {
+      if (!mounted) return;
+      setState(() {
+        _currentLocation = currentLocation;
+        _markers.add(
+          Marker(
+            markerId: MarkerId('myMarker'),
+            position: LatLng(_currentLocation.latitude!, _currentLocation.longitude!),
+            infoWindow: InfoWindow(title: 'Current Location'),
+          ),
+        );
+      });
+      _updateDatabaseWithLocation(currentLocation);
     });
   }
   @override
   void dispose() {
+    locationSubscription?.cancel();
     super.dispose();
-    _locationTimer.cancel();
   }
 
   void _getCurrentLocation() async {
   try {
     final location = Location();
     final LocationData locationData = await location.getLocation();
+    if (!mounted) return;  
     setState(() {
       _currentLocation = locationData;
       _markers.add(
@@ -59,17 +73,17 @@ late Timer _locationTimer;
     print('Error getting current location: $e');
   }
 }
-  void _updateDatabaseWithLocation(LocationData location) {
-  final userId = FirebaseAuth.instance.currentUser?.uid;
-  if (userId != null) {
-    final currentTime = DateTime.now().toUtc().millisecondsSinceEpoch;
-    databaseRef.child('users').child(userId).update({
-      'latitude': location.latitude!,
-      'longitude': location.longitude!,
-      'timestamp': currentTime, 
-    });
+ void _updateDatabaseWithLocation(LocationData location) {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId != null) {
+      final currentTime = DateTime.now().toUtc().millisecondsSinceEpoch;
+      databaseRef.child('users/$userId').update({
+        'latitude': location.latitude,
+        'longitude': location.longitude,
+        'timestamp': currentTime,
+      });
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -127,5 +141,58 @@ late Timer _locationTimer;
         zoom: 18.0,
       ),
     ));
+  }
+}
+class LocationService {
+  static final LocationService _instance = LocationService._internal();
+  factory LocationService() => _instance;
+  LocationService._internal();
+
+  final Location location = Location();
+  StreamSubscription<LocationData>? locationSubscription;
+
+  void startTracking() {
+    locationSubscription = location.onLocationChanged.listen((LocationData currentLocation) {
+      _updateDatabaseWithLocation(currentLocation);
+    });
+  }
+
+  void stopTracking() {
+    locationSubscription?.cancel();
+  }
+
+  void _updateDatabaseWithLocation(LocationData location) {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId != null) {
+      final currentTime = DateTime.now().toUtc().millisecondsSinceEpoch;
+      final DatabaseReference databaseRef = FirebaseDatabase.instanceFor(
+        app: Firebase.app(),
+        databaseURL: 'https://lookafter-dae81-default-rtdb.europe-west1.firebasedatabase.app/',
+      ).ref();
+
+      databaseRef.child('users/$userId').update({
+        'latitude': location.latitude,
+        'longitude': location.longitude,
+        'timestamp': currentTime,
+      });
+    }
+  }
+  Future<void> initialize() async {
+    bool _serviceEnabled;
+    PermissionStatus _permissionGranted;
+
+    _serviceEnabled = await location.serviceEnabled();
+    if (!_serviceEnabled) {
+      _serviceEnabled = await location.requestService();
+      if (!_serviceEnabled) return;
+    }
+
+    _permissionGranted = await location.hasPermission();
+    if (_permissionGranted == PermissionStatus.denied) {
+      _permissionGranted = await location.requestPermission();
+      if (_permissionGranted != PermissionStatus.granted) return;
+    }
+
+    startTracking();
   }
 }

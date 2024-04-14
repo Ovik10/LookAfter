@@ -1,13 +1,16 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:look/screens/map.dart';
 import 'package:look/screens/signin_screen.dart';
 import 'package:look/utils/color_utils.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   runApp(const MyApp());
+  LocationService().startTracking();
 }
 
 class MyApp extends StatelessWidget {
