@@ -47,6 +47,7 @@ dependencies:
   firebase_database: ^10.5.0
   intl: ^0.17.0
   uuid: ^4.3.3
+  mockito: ^5.0.0
   
 
 dev_dependencies:

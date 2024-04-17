@@ -130,11 +130,10 @@ await FirebaseFirestore.instance
     .collection('users')
     .doc(value.user!.uid)
     .set({
-  ...userData, // Spread the existing userData map
-  'contacts': [], // Add an empty list of contacts
-  'email': email, // Add the email to the document
+  ...userData, 
+  'contacts': [], 
+  'email': email, 
 });
-// Create chats collection for the user ¨
  await FirebaseFirestore.instance.collection('users').doc(value.user!.uid).collection('chats').doc('dummy').set({});
 
                       // Update Realtime Database with user data
